@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Álbum de placas de carro | Caroline Siffert</title>
+<style>
+  :root {
+    --bg: #fafafa;
+    --text: #1a1a1a;
+    --muted: #6b6b6b;
+  }
+
+  * {
+    box-sizing: border-box;
+  }
+
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Helvetica Neue', Arial, sans-serif;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  header {
+    padding: 64px 24px 32px;
+    text-align: center;
+  }
+
+  header .back {
+    display: inline-block;
+    margin-bottom: 24px;
+    font-size: 14px;
+    color: var(--muted);
+    text-decoration: none;
+    border-bottom: 1px solid var(--muted);
+    padding-bottom: 2px;
+  }
+
+  header .back:hover {
+    color: var(--text);
+    border-color: var(--text);
+  }
+
+  header h1 {
+    font-size: clamp(28px, 5vw, 48px);
+    margin: 0 0 8px;
+    letter-spacing: 0.5px;
+  }
+
+  header p {
+    color: var(--muted);
+    font-size: 16px;
+    margin: 0;
+    max-width: 520px;
+    margin: 0 auto;
+    line-height: 1.5;
+  }
+
+  .gallery {
+    column-count: 4;
+    column-gap: 12px;
+    padding: 0 24px 80px;
+    max-width: 1400px;
+    margin: 0 auto;
+  }
+
+  .gallery figure {
+    margin: 0 0 12px;
+    break-inside: avoid;
+    overflow: hidden;
+    border-radius: 6px;
+    background: #eee;
+    cursor: zoom-in;
+  }
+
+  .gallery img {
+    display: block;
+    width: 100%;
+    height: auto;
+    transition: transform 0.4s ease;
+  }
+
+  .gallery figure:hover img {
+    transform: scale(1.03);
+  }
+
+  @media (max-width: 1024px) {
+    .gallery { column-count: 3; }
+  }
+
+  @media (max-width: 700px) {
+    .gallery { column-count: 2; column-gap: 8px; padding: 0 12px 60px; }
+    .gallery figure { margin-bottom: 8px; border-radius: 4px; }
+    header { padding: 40px 16px 24px; }
+  }
+
+  @media (max-width: 420px) {
+    .gallery { column-count: 1; }
+  }
+
+  /* Lightbox */
+  .lightbox {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.92);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 999;
+    padding: 24px;
+  }
+
+  .lightbox.active {
+    display: flex;
+  }
+
+  .lightbox img {
+    max-width: 100%;
+    max-height: 100%;
+    border-radius: 4px;
+  }
+
+  .lightbox .close {
+    position: absolute;
+    top: 20px;
+    right: 28px;
+    color: #fff;
+    font-size: 32px;
+    cursor: pointer;
+    line-height: 1;
+    background: none;
+    border: none;
+  }
+
+  .lightbox .nav {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #fff;
+    font-size: 36px;
+    cursor: pointer;
+    background: none;
+    border: none;
+    padding: 12px;
+    opacity: 0.7;
+  }
+
+  .lightbox .nav:hover { opacity: 1; }
+  .lightbox .prev { left: 8px; }
+  .lightbox .next { right: 8px; }
+</style>
+</head>
+<body>
+
+<header>
+  <a class="back" href="#">&larr; voltar</a>
+  <h1>Placas que formam palavras</h1>
+  <p>Um álbum de fotos de placas de carro que, juntas, viram frases. Clique em qualquer imagem para ampliar.</p>
+</header>
+
+<div class="gallery" id="gallery"></div>
+
+<div class="lightbox" id="lightbox">
+  <button class="close" id="lightboxClose">&times;</button>
+  <button class="nav prev" id="lightboxPrev">&#10094;</button>
+  <img id="lightboxImg" src="" alt="">
+  <button class="nav next" id="lightboxNext">&#10095;</button>
+</div>
+
+<script>
+  const images = [
+    "images/img_0242.jpg",
+    "images/img_0596.jpg",
+    "images/img_0983.jpg",
+    "images/img_1792.jpg",
+    "images/img_2226.jpg",
+    "images/img_3202.jpg",
+    "images/img_3754.jpg",
+    "images/img_4187.jpg",
+    "images/img_4359.jpg",
+    "images/img_4423.jpg",
+    "images/img_4434.jpg",
+    "images/img_4504.jpg",
+    "images/img_4556.jpg",
+    "images/img_4572.jpg",
+    "images/img_4759.jpg",
+    "images/img_5557.jpg",
+    "images/img_5573.jpg",
+    "images/img_5864.jpg",
+    "images/img_6298.jpg",
+    "images/img_6607.jpg",
+    "images/img_7598.jpg",
+    "images/img_7964.jpg",
+    "images/img_8147.jpg",
+    "images/img_8248.jpg",
+    "images/img_8540.jpg",
+    "images/img_8548.jpg",
+    "images/img_8816.jpg"
+  ];
+
+  const gallery = document.getElementById('gallery');
+  images.forEach((src, i) => {
+    const fig = document.createElement('figure');
+    fig.innerHTML = `<img src="${src}" alt="Foto ${i + 1} do álbum" loading="lazy" data-index="${i}">`;
+    gallery.appendChild(fig);
+  });
+
+  // Lightbox
+  const lightbox = document.getElementById('lightbox');
+  const lightboxImg = document.getElementById('lightboxImg');
+  let currentIndex = 0;
+
+  function openLightbox(index) {
+    currentIndex = index;
+    lightboxImg.src = images[currentIndex];
+    lightbox.classList.add('active');
+  }
+
+  function closeLightbox() {
+    lightbox.classList.remove('active');
+  }
+
+  function showNext() {
+    currentIndex = (currentIndex + 1) % images.length;
+    lightboxImg.src = images[currentIndex];
+  }
+
+  function showPrev() {
+    currentIndex = (currentIndex - 1 + images.length) % images.length;
+    lightboxImg.src = images[currentIndex];
+  }
+
+  gallery.addEventListener('click', (e) => {
+    if (e.target.tagName === 'IMG') {
+      openLightbox(parseInt(e.target.dataset.index));
+    }
+  });
+
+  document.getElementById('lightboxClose').addEventListener('click', closeLightbox);
+  document.getElementById('lightboxNext').addEventListener('click', showNext);
+  document.getElementById('lightboxPrev').addEventListener('click', showPrev);
+  lightbox.addEventListener('click', (e) => {
+    if (e.target === lightbox) closeLightbox();
+  });
+
+  document.addEventListener('keydown', (e) => {
+    if (!lightbox.classList.contains('active')) return;
+    if (e.key === 'Escape') closeLightbox();
+    if (e.key === 'ArrowRight') showNext();
+    if (e.key === 'ArrowLeft') showPrev();
+  });
+</script>
+
+</body>
+</html>
